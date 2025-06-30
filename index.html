@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CPM Project Management Tool</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <h1 class="project-title">CPM-Net</h1>
+            <div class="header-controls">
+                <div class="project-stats">
+                    <span class="stat">
+                        <strong>Total Tasks:</strong> <span id="total-tasks">0</span>
+                    </span>
+                    <span class="stat">
+                        <strong>Critical Path Duration:</strong> <span id="critical-duration">0</span> days
+                    </span>
+                </div>
+                <div class="file-controls">
+                    <button class="btn btn--outline btn--sm" id="create-from-scratch">Create from scratch</button>
+                    <input type="file" id="import-file" accept=".json" class="hidden">
+                    <button class="btn btn--outline btn--sm" onclick="document.getElementById('import-file').click()">
+                        Import Project
+                    </button>
+                    <button class="btn btn--primary btn--sm" id="export-btn">
+                        Export Project
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <!-- Task Management Section -->
+            <section class="sidebar-section">
+                <h3>Task Management</h3>
+                <button class="btn btn--primary btn--full-width" id="add-task-btn">
+                    Add New Task
+                </button>
+                
+                <div class="task-list-container">
+                    <table class="task-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Task Name</th>
+                                <th>Duration</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="task-table-body">
+                            <!-- Tasks will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Status Legend -->
+            <section class="sidebar-section">
+                <h3>Status Legend</h3>
+                <div class="status-legend">
+                    <div class="status-item">
+                        <span class="status-color" style="background-color: #526D82;"></span>
+                        <span>To Do</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-color" style="background-color: #1F6E8C;"></span>
+                        <span>In Progress</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-color" style="background-color: #006A67;"></span>
+                        <span>Done</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-color" style="background-color: #AE445A;"></span>
+                        <span>Frozen</span>
+                    </div>
+                </div>
+            </section>
+        </aside>
+
+        <!-- Main Diagram Area -->
+        <main class="diagram-area">
+            <div class="diagram-controls">
+                <button class="btn btn--outline btn--sm" id="zoom-in">Zoom In</button>
+                <button class="btn btn--outline btn--sm" id="zoom-out">Zoom Out</button>
+                <button class="btn btn--outline btn--sm" id="reset-zoom">Reset View</button>
+                <button class="btn btn--outline btn--sm" id="auto-layout">Auto Layout</button>
+                <button class="btn btn--outline btn--sm" id="fullscreen-toggle">Fullscreen</button>
+            </div>
+            <div class="diagram-container" id="diagram-container">
+                <svg id="cpm-diagram" width="100%" height="100%">
+                    <defs>
+                        <marker id="arrowhead" markerWidth="10" markerHeight="7" 
+                                refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#666" />
+                        </marker>
+                        <marker id="arrowhead-critical" markerWidth="10" markerHeight="7" 
+                                refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#E74C3C" />
+                        </marker>
+                    </defs>
+                    <g id="diagram-group">
+                        <!-- Arrows and nodes will be rendered here -->
+                    </g>
+                </svg>
+            </div>
+            <div class="diagram-info">
+                <p><strong>Instructions:</strong> Double-click empty space to add task. Double-click nodes to edit. Drag nodes to reposition. Right-click for context menu. Click and drag to pan. Use mouse wheel to zoom.</p>
+
+            </div>
+        </main>
+        
+    </div>
+
+    <!-- Task Modal -->
+    <div id="task-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Add New Task</h2>
+                <button class="modal-close" id="modal-close">&times;</button>
+            </div>
+            <form id="task-form">
+                <div class="form-group">
+                    <label class="form-label" for="task-id">Task ID</label>
+                    <input type="text" id="task-id" class="form-control" placeholder="Auto-generated">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="task-name">Task Name *</label>
+                    <input type="text" id="task-name" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="task-assignee">Assignee</label>
+                    <input type="text" id="task-assignee" class="form-control" required>
+                    
+                    <input type="text" id="custom-assignee" class="form-control hidden" placeholder="Enter custom assignee">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="task-duration">Duration (days) *</label>
+                    <input type="number" id="task-duration" class="form-control" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="task-status">Status</label>
+                    <select id="task-status" class="form-control">
+                        <option value="To Do">To Do</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Done">Done</option>
+                        <option value="Frozen">Frozen</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="task-comments">Comments</label>
+                    <textarea id="task-comments" class="form-control" rows="3"></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn--outline" id="cancel-btn">Cancel</button>
+                    <button type="submit" class="btn btn--primary" id="save-task-btn">Save Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dependencies Modal -->
+    <div id="dependencies-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="dependencies-title">Manage Dependencies</h2>
+                <button class="modal-close" id="dependencies-close">&times;</button>
+            </div>
+            <div class="dependencies-content">
+                <div class="current-dependencies">
+                    <h3>Current Dependencies</h3>
+                    <div id="dependencies-list">
+                        <!-- Dependencies will be populated here -->
+                    </div>
+                </div>
+                <div class="add-dependency">
+                    <h3>Add Dependency</h3>
+                    <div class="form-group">
+                        <label class="form-label">This task depends on:</label>
+                        <select id="dependency-select" class="form-control">
+                            <option value="">Select a task</option>
+                        </select>
+                        <button type="button" class="btn btn--primary btn--sm" id="add-dependency-btn" style="margin-top: 8px;">
+                            Add Dependency
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Context Menu -->
+    <div id="context-menu" class="context-menu hidden">
+        <div class="context-menu-item" id="context-edit">Edit Task</div>
+        <div class="context-menu-item" id="context-dependencies">Manage Dependencies</div>
+        <div class="context-menu-item" id="context-delete">Delete Task</div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+
+<footer class="main-footer">
+    <div class="footer-content">
+        <p>© 2025 Your CPM App. <a href="/privacy-policy">Privacy Policy</a></p>
+    </div>
+</footer>
+
+</html>
