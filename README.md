@@ -4,7 +4,6 @@ A modern, client-side web application for project scheduling and visualization u
 
 ![App Screenshot](screenshot.png)  
 
----
 
 ## Features
 
@@ -17,7 +16,6 @@ A modern, client-side web application for project scheduling and visualization u
 - **Privacy-Focused:** No data is collected or sent to any server—all processing happens in your browser.
 - **Responsive Design:** Works well on both desktop and tablet devices.
 
----
 
 ## Usage
 
@@ -28,14 +26,11 @@ A modern, client-side web application for project scheduling and visualization u
 5. **Export/Import Projects:** Use the file menu to manage project files.
 6. **Fullscreen Mode:** Click the "Fullscreen" button to view the diagram in fullscreen.
 
----
 
 ## Contributing
 
 Pull requests and issues are welcome!  
 If you have any suggestions or bug reports, please open an issue or submit a pull request.
-
----
 
 ## License
 
